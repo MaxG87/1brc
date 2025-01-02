@@ -4,7 +4,7 @@ use std::io::{self, Write};
 
 #[cfg(feature = "random")]
 use rand::{
-    distributions::{Alphanumeric, Distribution, Uniform},
+    distributions::{Alphanumeric, Distribution, Slice, Uniform},
     Rng,
 };
 
@@ -52,12 +52,14 @@ fn main() {
     let cities = get_cities(max_nof_cities);
     let mut value_rng =
         Uniform::new_inclusive(MIN_VALUE, MAX_VALUE).sample_iter(rand::thread_rng());
-    let mut city_rng = Uniform::new(0, cities.len()).sample_iter(rand::thread_rng());
+    let mut city_rng = Slice::new(&cities)
+        .expect("No cities provided!")
+        .sample_iter(rand::thread_rng());
     let mut lock = io::stdout().lock();
     for _ in 0..nof_rows {
-        let city_idx = city_rng.next().unwrap();
+        let city = city_rng.next().unwrap();
         let value = value_rng.next().unwrap();
         let value = f64::from(value) / 10.0;
-        writeln!(lock, "{};{value:.1}", cities[city_idx]).unwrap();
+        writeln!(lock, "{};{value:.1}", city).unwrap();
     }
 }
