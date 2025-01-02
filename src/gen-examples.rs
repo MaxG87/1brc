@@ -8,8 +8,8 @@ use rand::{
     Rng,
 };
 
-const MIN_VALUE: i32 = -999; // inclusive
-const MAX_VALUE: i32 = 999; // inclusive
+const MIN_VALUE: i16 = -999; // inclusive
+const MAX_VALUE: i16 = 999; // inclusive
 const MIN_CITY_NAME_LEN: usize = 1;
 const MAX_CITY_NAME_LEN: usize = 32; // inclusive
 
@@ -48,7 +48,8 @@ fn main() {
 
     let cities = get_cities(max_nof_cities);
     let mut value_rng =
-        Uniform::new_inclusive(MIN_VALUE, MAX_VALUE).sample_iter(rand::thread_rng());
+        Uniform::new_inclusive(f32::from(MIN_VALUE), f32::from(MAX_VALUE))
+            .sample_iter(rand::thread_rng());
     let mut city_rng = Slice::new(&cities)
         .expect("No cities provided!")
         .sample_iter(rand::thread_rng());
@@ -57,6 +58,6 @@ fn main() {
         let city = city_rng.next().unwrap();
         let value = value_rng.next().unwrap();
         let value = f64::from(value) / 10.0;
-        writeln!(lock, "{};{value:.1}", city).unwrap();
+        writeln!(lock, "{city};{value:.1}").unwrap();
     }
 }
