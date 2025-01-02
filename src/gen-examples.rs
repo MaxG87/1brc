@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::io::{self, Write};
 use std::env;
 
 #[cfg(feature = "random")]
@@ -45,10 +46,11 @@ fn main() {
     let nof_rows: u32 = args[2].parse().unwrap();
 
     let cities = get_cities(max_nof_cities);
+    let mut lock = io::stdout().lock();
     for _ in 0..nof_rows {
         let city_idx = rand::thread_rng().gen_range(0..cities.len());
         let value = rand::thread_rng().gen_range(MIN_VALUE..=MAX_VALUE);
         let value = value as f64 / 10.0;
-        println!("{};{value:.1}", cities[city_idx]);
+        writeln!(lock, "{};{value:.1}", cities[city_idx]).unwrap();
     }
 }
