@@ -18,8 +18,7 @@ fn get_city_name() -> String {
     // only ASCII characters are sampled.
     let city_name_len = rand::thread_rng().gen_range(MIN_CITY_NAME_LEN..=MAX_CITY_NAME_LEN);
     let char_rng = Alphanumeric.sample_iter(rand::thread_rng());
-    let city_name_bytes = char_rng.take(city_name_len)
-        .collect::<Vec<_>>();
+    let city_name_bytes = char_rng.take(city_name_len).collect::<Vec<_>>();
     let city_name =
         String::from_utf8(city_name_bytes).expect("Sampling ASCII characters must be valid UTF8");
     city_name.to_string()
@@ -48,7 +47,7 @@ fn main() {
 
     let cities = get_cities(max_nof_cities);
     let mut value_rng =
-        Uniform::new_inclusive(MIN_VALUE, MAX_VALUE).sample_iter(rand::thread_rng());
+        Uniform::new_inclusive(MIN_VALUE as f32, MAX_VALUE as f32).sample_iter(rand::thread_rng());
     let mut city_rng = Slice::new(&cities)
         .expect("No cities provided!")
         .sample_iter(rand::thread_rng());
@@ -56,7 +55,7 @@ fn main() {
     for _ in 0..nof_rows {
         let city = city_rng.next().unwrap();
         let value = value_rng.next().unwrap();
-        let value = value as f64 / 10.0;
+        let value = value / 10.0f32;
         writeln!(lock, "{};{value:.1}", city).unwrap();
     }
 }
