@@ -17,14 +17,12 @@ fn get_city_name() -> String {
     // Sampling printable UTF8 characters would be overly complex. Therefore,
     // only ASCII characters are sampled.
     let city_name_len = rand::thread_rng().gen_range(MIN_CITY_NAME_LEN..=MAX_CITY_NAME_LEN);
-    let city_name_bytes = (0..city_name_len)
-        .map(|_| rand::thread_rng().sample(Alphanumeric))
+    let char_rng = Alphanumeric.sample_iter(rand::thread_rng());
+    let city_name_bytes = char_rng.take(city_name_len)
         .collect::<Vec<_>>();
     let city_name =
         String::from_utf8(city_name_bytes).expect("Sampling ASCII characters must be valid UTF8");
-    // Not all UTF8 characters use 4 bytes, so we need to truncate the string
-    // to the actual length of the city name.
-    city_name.to_string().chars().take(city_name_len).collect()
+    city_name.to_string()
 }
 
 fn get_cities(nof_cities: u32) -> Vec<String> {
