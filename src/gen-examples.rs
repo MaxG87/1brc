@@ -2,7 +2,6 @@ use std::collections::HashSet;
 use std::env;
 use std::io::{self, Write};
 
-#[cfg(feature = "random")]
 use rand::{
     distributions::{Alphanumeric, Distribution, Slice, Uniform},
     rngs::StdRng,

@@ -7,7 +7,6 @@ license = "GPL-3.0-or-later"
 [[bin]]
 name = "gen-examples"
 path = "src/gen-examples.rs"
-required-features = ["random"]
 
 [[bin]]
 name = "1brc"
@@ -21,10 +20,7 @@ memmap = "0.7.0"
 rayon = "1.8.0"
 rustc-hash = "1.1.0"
 smol_str = "0.2.0"
-rand = { version = "0.8.5", optional = true }
-
-[features]
-random = ["rand"]
+rand = "0.8.5"
 
 [lints.rust]
 unsafe_code = "warn"
