@@ -1,11 +1,11 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use std::env;
 use std::io::{self, Write};
 
 use rand::{
-    distributions::{Alphanumeric, Distribution, Slice, Uniform},
+    distributions::{Alphanumeric, DistIter, Distribution, Slice, Uniform},
     rngs::StdRng,
-    Rng, SeedableRng,
+    SeedableRng,
 };
 
 const MIN_VALUE: i16 = -999; // inclusive
@@ -13,23 +13,28 @@ const MAX_VALUE: i16 = 999; // inclusive
 const MIN_CITY_NAME_LEN: usize = 1;
 const MAX_CITY_NAME_LEN: usize = 32; // inclusive
 
-fn get_city_name() -> String {
+fn get_city_name(
+    city_name_len_rng: &mut DistIter<Uniform<usize>, StdRng, usize>,
+    city_name_char_rng: &mut DistIter<Alphanumeric, StdRng, u8>,
+) -> String {
     // Sampling printable UTF8 characters would be overly complex. Therefore,
     // only ASCII characters are sampled.
-    let city_name_len =
-        rand::thread_rng().gen_range(MIN_CITY_NAME_LEN..=MAX_CITY_NAME_LEN);
-    let char_rng = Alphanumeric.sample_iter(rand::thread_rng());
-    let city_name_bytes = char_rng.take(city_name_len).collect::<Vec<_>>();
+    let city_name_len = city_name_len_rng.next().unwrap();
+    let city_name_bytes = city_name_char_rng.take(city_name_len).collect::<Vec<_>>();
     let city_name = String::from_utf8(city_name_bytes)
         .expect("Sampling ASCII characters must be valid UTF8");
     city_name.to_string()
 }
 
-fn get_cities(nof_cities: u32) -> Vec<String> {
-    let mut cities = HashSet::new();
+fn get_cities(
+    nof_cities: u32,
+    city_name_len_rng: &mut DistIter<Uniform<usize>, StdRng, usize>,
+    city_name_char_rng: &mut DistIter<Alphanumeric, StdRng, u8>,
+) -> Vec<String> {
+    let mut cities = BTreeSet::new();
     for _ in 0..nof_cities {
         loop {
-            let city_name = get_city_name();
+            let city_name = get_city_name(city_name_len_rng, city_name_char_rng);
             if city_name.contains(';') {
                 continue;
             }
@@ -61,7 +66,17 @@ fn main() {
         None => StdRng::from_entropy(),
     };
 
-    let cities = get_cities(max_nof_cities);
+    let mut city_name_len_rng =
+        Uniform::new_inclusive(MIN_CITY_NAME_LEN, MAX_CITY_NAME_LEN)
+            .sample_iter(StdRng::from_rng(&mut seed_rng).unwrap());
+    let mut city_name_char_rng =
+        Alphanumeric.sample_iter(StdRng::from_rng(&mut seed_rng).unwrap());
+    let cities = get_cities(
+        max_nof_cities,
+        &mut city_name_len_rng,
+        &mut city_name_char_rng,
+    );
+
     let mut value_rng =
         Uniform::new_inclusive(f32::from(MIN_VALUE), f32::from(MAX_VALUE))
             .sample_iter(StdRng::from_rng(&mut seed_rng).unwrap());
