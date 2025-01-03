@@ -5,7 +5,8 @@ use std::io::{self, Write};
 #[cfg(feature = "random")]
 use rand::{
     distributions::{Alphanumeric, Distribution, Slice, Uniform},
-    Rng,
+    rngs::StdRng,
+    Rng, SeedableRng,
 };
 
 const MIN_VALUE: i16 = -999; // inclusive
@@ -53,14 +54,21 @@ fn main() {
         .expect("Number of rows to generate not provided!")
         .parse()
         .expect("Number of rows to generate must be a positive integer!");
+    let maybe_seed = args
+        .get(3)
+        .map(|s| s.parse().expect("Seed must be a positive integer!"));
+    let mut seed_rng = match maybe_seed {
+        Some(seed) => StdRng::seed_from_u64(seed),
+        None => StdRng::from_entropy(),
+    };
 
     let cities = get_cities(max_nof_cities);
     let mut value_rng =
         Uniform::new_inclusive(f32::from(MIN_VALUE), f32::from(MAX_VALUE))
-            .sample_iter(rand::thread_rng());
+            .sample_iter(StdRng::from_rng(&mut seed_rng).unwrap());
     let mut city_rng = Slice::new(&cities)
         .expect("No cities provided!")
-        .sample_iter(rand::thread_rng());
+        .sample_iter(StdRng::from_rng(&mut seed_rng).unwrap());
     let mut lock = io::stdout().lock();
     for _ in 0..nof_rows {
         let city = city_rng.next().unwrap();
