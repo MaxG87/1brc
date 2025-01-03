@@ -43,8 +43,16 @@ fn get_cities(nof_cities: u32) -> Vec<String> {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let max_nof_cities: u32 = args[1].parse().unwrap();
-    let nof_rows: u32 = args[2].parse().unwrap();
+    let max_nof_cities: u32 = args
+        .get(1)
+        .expect("Maximum number of cities not provided!")
+        .parse()
+        .expect("Maximum number of cities must be a positive integer!");
+    let nof_rows: u32 = args
+        .get(2)
+        .expect("Number of rows to generate not provided!")
+        .parse()
+        .expect("Number of rows to generate must be a positive integer!");
 
     let cities = get_cities(max_nof_cities);
     let mut value_rng =
