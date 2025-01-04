@@ -20,10 +20,10 @@ fn get_city_name(
     // Sampling printable UTF8 characters would be overly complex. Therefore,
     // only ASCII characters are sampled.
     let city_name_len = city_name_len_rng.next().unwrap();
-    let city_name_bytes = city_name_char_rng.take(city_name_len).collect::<Vec<_>>();
-    let city_name = String::from_utf8(city_name_bytes)
-        .expect("Sampling ASCII characters must be valid UTF8");
-    city_name.to_string()
+    city_name_char_rng
+        .take(city_name_len)
+        .map(char::from)
+        .collect()
 }
 
 fn get_cities(
