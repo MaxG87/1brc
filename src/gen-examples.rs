@@ -77,9 +77,8 @@ fn main() {
         &mut city_name_char_rng,
     );
 
-    let mut value_rng =
-        Uniform::new_inclusive(f32::from(MIN_VALUE), f32::from(MAX_VALUE))
-            .sample_iter(StdRng::from_rng(&mut seed_rng).unwrap());
+    let mut value_rng = Uniform::new_inclusive(MIN_VALUE, MAX_VALUE)
+        .sample_iter(StdRng::from_rng(&mut seed_rng).unwrap());
     let mut city_rng = Slice::new(&cities)
         .expect("No cities provided!")
         .sample_iter(StdRng::from_rng(&mut seed_rng).unwrap());
@@ -89,8 +88,7 @@ fn main() {
     for _ in 0..nof_rows {
         let city = city_rng.next().unwrap();
         let value = value_rng.next().unwrap();
-        let value = f64::from(value) / 10.0;
-        match writeln!(writer, "{city};{value:.1}") {
+        match writeln!(writer, "{city};{}.{}", value / 10, value % 10) {
             Ok(()) => (),
             Err(e) => {
                 match e.kind() {
