@@ -88,6 +88,15 @@ fn main() {
         let city = city_rng.next().unwrap();
         let value = value_rng.next().unwrap();
         let value = f64::from(value) / 10.0;
-        writeln!(lock, "{city};{value:.1}").unwrap();
+        match writeln!(lock, "{city};{value:.1}") {
+            Ok(()) => (),
+            Err(e) => {
+                match e.kind() {
+                    io::ErrorKind::BrokenPipe => (),
+                    _ => eprintln!("Error writing to STDOUT: {e}"),
+                }
+                break;
+            }
+        }
     }
 }
