@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 use std::env;
-use std::io::{self, Write};
+use std::io::{self, BufWriter, Write};
 
 use rand::{
     distributions::{Alphanumeric, DistIter, Distribution, Slice, Uniform},
@@ -83,12 +83,14 @@ fn main() {
     let mut city_rng = Slice::new(&cities)
         .expect("No cities provided!")
         .sample_iter(StdRng::from_rng(&mut seed_rng).unwrap());
+
     let mut lock = io::stdout().lock();
+    let mut writer = BufWriter::with_capacity(8192, &mut lock);
     for _ in 0..nof_rows {
         let city = city_rng.next().unwrap();
         let value = value_rng.next().unwrap();
         let value = f64::from(value) / 10.0;
-        match writeln!(lock, "{city};{value:.1}") {
+        match writeln!(writer, "{city};{value:.1}") {
             Ok(()) => (),
             Err(e) => {
                 match e.kind() {
@@ -99,4 +101,5 @@ fn main() {
             }
         }
     }
+    writer.flush().expect("Error flushing buffer!");
 }
